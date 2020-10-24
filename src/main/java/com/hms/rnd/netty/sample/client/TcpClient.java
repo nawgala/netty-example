@@ -37,7 +37,7 @@ public class TcpClient {
             });
             // Start the client.
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync(); // (5)
-.gitignore
+
             // Wait until the connection is closed.
             channelFuture.channel().closeFuture().sync();
         } finally {
