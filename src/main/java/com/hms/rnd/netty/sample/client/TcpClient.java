@@ -12,13 +12,13 @@ public class TcpClient {
     private int port;
     private String host;
 
-    private ChannelHandler clientHandler;
+    private ChannelHandler[] clientHandlers;
 
-    public TcpClient(String name, String host, int port, ChannelHandler clientHandler) {
+    public TcpClient(String name, String host, int port, ChannelHandler[] clientHandlers) {
         this.name = name;
         this.host = host;
         this.port = port;
-        this.clientHandler = clientHandler;
+        this.clientHandlers = clientHandlers;
     }
 
     public void run() throws InterruptedException {
@@ -32,7 +32,7 @@ public class TcpClient {
             bootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(clientHandler);
+                    ch.pipeline().addLast(clientHandlers);
                 }
             });
             // Start the client.
