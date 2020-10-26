@@ -3,6 +3,7 @@ package com.hms.rnd.netty.sample.echo;
 import com.hms.rnd.netty.sample.client.TcpClient;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +13,17 @@ import java.util.List;
 
 public class TimeClient {
     public static void main(String[] args) throws InterruptedException {
-        new TcpClient("TimeClient", "localhost", 9000,
-                new ChannelHandler[]{new TimeDecoder(),
-                        new TimeClientHandler()}).run();
+        new TcpClient("TimeClient", "localhost", 9000, new TimeClientInitializer()).run();
     }
 
+}
+
+class TimeClientInitializer extends ChannelInitializer<SocketChannel> {
+
+    @Override
+    protected void initChannel(SocketChannel ch) throws Exception {
+        ch.pipeline().addLast(new TimeClientHandler());
+    }
 }
 
 class TimeClientHandler extends ChannelInboundHandlerAdapter {

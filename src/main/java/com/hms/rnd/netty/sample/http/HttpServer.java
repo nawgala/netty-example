@@ -1,5 +1,6 @@
 package com.hms.rnd.netty.sample.http;
 
+import com.hms.rnd.netty.sample.server.TcpServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -12,41 +13,14 @@ import io.netty.util.CharsetUtil;
 
 public class HttpServer {
 
-    private int port = 8080;
+    private static int port = 8080;
 
     public HttpServer(int port) {
         this.port = port;
     }
 
     public static void main(String[] args) throws InterruptedException {
-        new HttpServer(8080).run();
-
-
-    }
-
-    private void run() throws InterruptedException {
-        EventLoopGroup boss = new NioEventLoopGroup();
-        EventLoopGroup worker = new NioEventLoopGroup();
-
-        try {
-
-            ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.group(boss, worker)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(new ServerInitializer())
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true)
-            ;
-
-            ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
-
-            channelFuture.channel().closeFuture().sync();
-        } finally {
-            worker.shutdownGracefully();
-            worker.shutdownGracefully();
-        }
-
-
+        new TcpServer("HttpServer", port, new ServerInitializer()).run();
     }
 }
 

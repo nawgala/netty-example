@@ -12,13 +12,13 @@ public class TcpClient {
     private int port;
     private String host;
 
-    private ChannelHandler[] clientHandlers;
+    private ChannelInitializer<SocketChannel> channelInitializer;
 
-    public TcpClient(String name, String host, int port, ChannelHandler[] clientHandlers) {
+    public TcpClient(String name, String host, int port, ChannelInitializer<SocketChannel> channelInitializer) {
         this.name = name;
         this.host = host;
         this.port = port;
-        this.clientHandlers = clientHandlers;
+        this.channelInitializer = channelInitializer;
     }
 
     public void run() throws InterruptedException {
@@ -29,12 +29,7 @@ public class TcpClient {
             bootstrap.group(workerGroup); // (2)
             bootstrap.channel(NioSocketChannel.class); // (3)
             bootstrap.option(ChannelOption.SO_KEEPALIVE, true); // (4)
-            bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-                @Override
-                public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(clientHandlers);
-                }
-            });
+            bootstrap.handler(channelInitializer);
             // Start the client.
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync(); // (5)
 

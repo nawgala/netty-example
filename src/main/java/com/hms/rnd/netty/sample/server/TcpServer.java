@@ -4,7 +4,6 @@ import com.hms.rnd.netty.sample.util.DefaultThreadFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 public class TcpServer {
@@ -13,12 +12,12 @@ public class TcpServer {
 
     private int port;
 
-    private ChannelHandler channelHandler;
+    private ChannelInitializer channelInitializer;
 
-    public TcpServer(String name, int port, ChannelHandler channelHandler) {
+    public TcpServer(String name, int port, ChannelInitializer channelInitializer) {
         this.name = name;
-        this.channelHandler = channelHandler;
         this.port = port;
+        this.channelInitializer = channelInitializer;
     }
 
 
@@ -30,12 +29,7 @@ public class TcpServer {
             ServerBootstrap serverBootstrap = new ServerBootstrap(); // (2)
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class) // (3)
-                    .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
-                        @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(channelHandler);
-                        }
-                    })
+                    .childHandler(channelInitializer)
                     .option(ChannelOption.SO_BACKLOG, 128)          // (5)
                     .childOption(ChannelOption.SO_KEEPALIVE, true); // (6)
 
