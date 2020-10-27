@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,11 +78,15 @@ class TimeDecoder extends ByteToMessageDecoder {
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         logger.info("Message is decoding [ readable: {}]", in.readableBytes());
 
-        if (in.readableBytes() < 4) {
-            logger.warn("Not enough data. Waiting till more data come");
-            return;
+        try {
+            if (in.readableBytes() < 4) {
+                logger.warn("Not enough data. Waiting till more data come");
+                return;
+            }
+            out.add(in.readInt());
+            logger.info("Decode is done");
+        } finally {
+            ReferenceCountUtil.release(in);
         }
-        out.add(in.readInt());
-        logger.info("Decode is done");
     }
 }
